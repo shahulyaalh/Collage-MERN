@@ -12,6 +12,7 @@ app.use(
 );
 
 app.use(express.json());
+app.use(cors());
 
 const connectDB = async () => {
   try {
