@@ -7,7 +7,7 @@
     "@emotion/styled": "11.11.4",
     "@mui/icons-material": "^5.16.14",
     "@mui/material": "^5.16.14",
-    "axios": "^1.8.4",
+    "axios": "^1.9.0",
     "cra-template": "1.2.0",
     "nodemon": "^3.1.9",
     "port": "^0.8.1",

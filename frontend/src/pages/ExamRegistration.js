@@ -36,8 +36,12 @@ const ExamRegistration = () => {
         }
 
         const [subjectRes, studentRes] = await Promise.all([
-          axios.get(`http://localhost:5000/api/exams/subjects/${studentId}`),
-          axios.get(`http://localhost:5000/api/student/${studentId}`),
+          axios.get(
+            `https://collage-mern-1.onrender.com/api/exams/subjects/${studentId}`
+          ),
+          axios.get(
+            `https://collage-mern-1.onrender.com/api/student/${studentId}`
+          ),
         ]);
 
         setRegularSubjects(subjectRes.data.regularSubjects || []);
@@ -81,7 +85,7 @@ const ExamRegistration = () => {
 
     try {
       const res = await axios.post(
-        "http://localhost:5000/api/exams/register-exam",
+        "https://collage-mern-1.onrender.com/api/exams/register-exam",
         data
       );
 

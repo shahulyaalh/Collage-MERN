@@ -36,7 +36,9 @@ const AdminDashboard = () => {
   const fetchStudents = async () => {
     try {
       setLoadingStudents(true);
-      const res = await axios.get("http://localhost:5000/api/admin/students");
+      const res = await axios.get(
+        "https://collage-mern-1.onrender.com/api/admin/students"
+      );
       setStudents(res.data);
     } catch (err) {
       console.error("❌ Error fetching students:", err);
@@ -48,7 +50,9 @@ const AdminDashboard = () => {
   const fetchUploadedFiles = async () => {
     try {
       setLoadingFiles(true);
-      const res = await axios.get("http://localhost:5000/api/files/uploads");
+      const res = await axios.get(
+        "https://collage-mern-1.onrender.com/api/files/uploads"
+      );
       setUploadedFiles(res.data);
     } catch (err) {
       console.error("❌ Error fetching files:", err);
@@ -79,7 +83,7 @@ const AdminDashboard = () => {
 
     try {
       const res = await axios.post(
-        "http://localhost:5000/api/files/upload",
+        "https://collage-mern-1.onrender.com/api/files/upload",
         formData
       );
       setUploadMessage({ text: `✅ ${res.data.message}`, type: "success" });
@@ -104,7 +108,7 @@ const AdminDashboard = () => {
 
     try {
       await axios.delete(
-        `http://localhost:5000/api/admin/students/${studentId}`
+        `https://collage-mern-1.onrender.com/api/admin/students/${studentId}`
       );
       alert("✅ Student removed successfully!");
       setStudents((prev) => prev.filter((s) => s._id !== studentId));
@@ -117,7 +121,7 @@ const AdminDashboard = () => {
   const handleUpdateStudent = async (studentId, updatedData) => {
     try {
       await axios.patch(
-        `http://localhost:5000/api/admin/students/${studentId}`,
+        `https://collage-mern-1.onrender.com/api/admin/students/${studentId}`,
         updatedData,
         {
           headers: { "Content-Type": "application/json" },
@@ -138,7 +142,9 @@ const AdminDashboard = () => {
     if (!window.confirm("Are you sure you want to delete this file?")) return;
 
     try {
-      await axios.delete(`http://localhost:5000/api/files/uploads/${fileId}`);
+      await axios.delete(
+        `https://collage-mern-1.onrender.com/api/files/uploads/${fileId}`
+      );
       alert("✅ File deleted successfully!");
       fetchUploadedFiles();
     } catch (err) {

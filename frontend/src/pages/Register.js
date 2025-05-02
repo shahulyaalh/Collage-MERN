@@ -38,7 +38,7 @@ const Register = () => {
       const endpoint =
         userType === "admin" ? "/api/admin/register" : "/api/student/register";
       const res = await axios.post(
-        `http://localhost:5000${endpoint}`,
+        `https://collage-mern-1.onrender.com${endpoint}`,
         formData
       );
 

@@ -1,99 +1,97 @@
 import React from "react";
 import { Link, useNavigate, useLocation } from "react-router-dom";
-import { AppBar, Toolbar, Button, Box } from "@mui/material";
+import { AppBar, Toolbar, Button, Box, Stack, Container } from "@mui/material";
 
 const Navbar = () => {
   const navigate = useNavigate();
   const location = useLocation();
   const isAuthenticated = !!localStorage.getItem("token");
   const user = localStorage.getItem("studentName") ? "student" : "admin";
-  console.log(isAuthenticated);
 
   const handleLogout = () => {
     localStorage.removeItem("token");
     navigate("/login");
   };
 
-  // Helper to style active button
   const isActive = (path) => location.pathname === path;
-  console.log(location.pathname);
 
   return (
-    <AppBar position="static">
-      <Toolbar sx={{ px: 3, display: "flex", justifyContent: "space-between" }}>
-        <Box sx={{ display: "flex", gap: 2 }}>
-          <Button
-            color={isActive("/") ? "secondary" : "inherit"}
-            component={Link}
-            to="/"
-          >
-            Home
-          </Button>
+    <AppBar position="static" color="primary" elevation={3}>
+      <Container maxWidth="lg">
+        <Toolbar disableGutters sx={{ justifyContent: "center", py: 1.5 }}>
+          <Stack direction="row" spacing={2} alignItems="center">
+            <Button
+              color={isActive("/") ? "secondary" : "inherit"}
+              component={Link}
+              to="/"
+              variant={isActive("/") ? "contained" : "text"}
+            >
+              Home
+            </Button>
 
-          {!isAuthenticated ? (
-            <>
-              <Button
-                color={isActive("/register") ? "secondary" : "inherit"}
-                component={Link}
-                to="/register"
-              >
-                Register
-              </Button>
-              <Button
-                color={isActive("/login") ? "secondary" : "inherit"}
-                component={Link}
-                to="/login"
-              >
-                Login
-              </Button>
-            </>
-          ) : (
-            <>
-              {user == "student" && (
-                <>
-                  <Button
-                    color={
-                      isActive("/student-dashboard") ? "secondary" : "inherit"
-                    }
-                    component={Link}
-                    to="/student-dashboard"
-                  >
-                    Dashboard
-                  </Button>
-                  <Button
-                    color={
-                      isActive("/exam-registration") ? "secondary" : "inherit"
-                    }
-                    component={Link}
-                    to="/exam-registration"
-                  >
-                    Exam Registration
-                  </Button>
-                  {/* <Button
-                    color={isActive("/hall-ticket") ? "secondary" : "inherit"}
-                    component={Link}
-                    to="/hall-ticket"
-                  >
-                    Hall Ticket
-                  </Button> */}
-                </>
-              )}
-              {user == "admin" && (
+            {!isAuthenticated ? (
+              <>
                 <Button
-                  color={isActive("/admin-dashboard") ? "secondary" : "inherit"}
+                  color={isActive("/login") ? "secondary" : "inherit"}
                   component={Link}
-                  to="/admin-dashboard"
+                  to="/login"
+                  variant={isActive("/login") ? "contained" : "text"}
                 >
-                  Admin Panel
+                  Login
                 </Button>
-              )}
-              <Button color="inherit" onClick={handleLogout}>
-                Logout
-              </Button>
-            </>
-          )}
-        </Box>
-      </Toolbar>
+              </>
+            ) : (
+              <>
+                {user === "student" && (
+                  <>
+                    <Button
+                      color={
+                        isActive("/student-dashboard") ? "secondary" : "inherit"
+                      }
+                      component={Link}
+                      to="/student-dashboard"
+                      variant={
+                        isActive("/student-dashboard") ? "contained" : "text"
+                      }
+                    >
+                      Dashboard
+                    </Button>
+                    <Button
+                      color={
+                        isActive("/exam-registration") ? "secondary" : "inherit"
+                      }
+                      component={Link}
+                      to="/exam-registration"
+                      variant={
+                        isActive("/exam-registration") ? "contained" : "text"
+                      }
+                    >
+                      Exam Registration
+                    </Button>
+                  </>
+                )}
+                {user === "admin" && (
+                  <Button
+                    color={
+                      isActive("/admin-dashboard") ? "secondary" : "inherit"
+                    }
+                    component={Link}
+                    to="/admin-dashboard"
+                    variant={
+                      isActive("/admin-dashboard") ? "contained" : "text"
+                    }
+                  >
+                    Admin Panel
+                  </Button>
+                )}
+                <Button color="inherit" onClick={handleLogout}>
+                  Logout
+                </Button>
+              </>
+            )}
+          </Stack>
+        </Toolbar>
+      </Container>
     </AppBar>
   );
 };

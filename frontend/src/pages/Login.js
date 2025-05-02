@@ -48,17 +48,25 @@ const Login = () => {
         payload = { regNumber: formData.regNumber }; // ✅ Only regNumber for students
       }
 
-      const res = await axios.post(`http://localhost:5000${endpoint}`, payload);
+      const res = await axios.post(
+        `https://collage-mern-1.onrender.com${endpoint}`,
+        payload
+      );
 
       // ✅ Store user details in local storage
       localStorage.setItem("token", res.data.token || "");
       localStorage.setItem("studentId", res.data.studentId || "");
       localStorage.setItem("studentName", res.data.name || "");
 
-      setMessage({ text: "✅ Login successful! Redirecting...", type: "success" });
+      setMessage({
+        text: "✅ Login successful! Redirecting...",
+        type: "success",
+      });
 
       setTimeout(() => {
-        navigate(userType === "admin" ? "/admin-dashboard" : "/student-dashboard");
+        navigate(
+          userType === "admin" ? "/admin-dashboard" : "/student-dashboard"
+        );
       }, 1500);
     } catch (error) {
       setMessage({
@@ -72,16 +80,26 @@ const Login = () => {
 
   return (
     <Container maxWidth="sm">
-      <Paper elevation={4} sx={{ padding: 4, marginTop: 4, textAlign: "center" }}>
+      <Paper
+        elevation={4}
+        sx={{ padding: 4, marginTop: 4, textAlign: "center" }}
+      >
         <Typography variant="h4">🔐 Login</Typography>
 
-        {message.text && <Alert severity={message.type} sx={{ mt: 2 }}>{message.text}</Alert>}
+        {message.text && (
+          <Alert severity={message.type} sx={{ mt: 2 }}>
+            {message.text}
+          </Alert>
+        )}
 
         <form onSubmit={handleLogin} style={{ marginTop: 20 }}>
           {/* ✅ Select User Type */}
           <FormControl fullWidth sx={{ mb: 2 }}>
             <InputLabel>User Type</InputLabel>
-            <Select value={userType} onChange={(e) => setUserType(e.target.value)}>
+            <Select
+              value={userType}
+              onChange={(e) => setUserType(e.target.value)}
+            >
               <MenuItem value="student">Student</MenuItem>
               <MenuItem value="admin">Admin</MenuItem>
             </Select>
@@ -123,15 +141,21 @@ const Login = () => {
             </>
           )}
 
-          <Button variant="contained" color="primary" type="submit" fullWidth disabled={loading}>
+          <Button
+            variant="contained"
+            color="primary"
+            type="submit"
+            fullWidth
+            disabled={loading}
+          >
             {loading ? "Logging in..." : "Login"}
           </Button>
 
-          {userType === "admin" && (
+          {/* {userType === "admin" && (
             <Typography variant="body2" sx={{ mt: 2 }}>
               Don't have an account? <a href="/register">Register</a>
             </Typography>
-          )}
+          )} */}
         </form>
       </Paper>
     </Container>

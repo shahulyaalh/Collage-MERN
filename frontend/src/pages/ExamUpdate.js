@@ -28,7 +28,9 @@ const ExamUpdate = () => {
   const fetchSubjects = async () => {
     try {
       setLoading(true);
-      const res = await axios.get("http://localhost:5000/api/admin/subjects");
+      const res = await axios.get(
+        "https://collage-mern-1.onrender.com/api/admin/subjects"
+      );
       setSubjects(res.data);
     } catch (err) {
       console.error("❌ Error fetching subjects:", err);
@@ -46,9 +48,12 @@ const ExamUpdate = () => {
     }
 
     try {
-      await axios.patch(`http://localhost:5000/api/admin/subjects/${subjectId}`, {
-        examSchedule,
-      });
+      await axios.patch(
+        `https://collage-mern-1.onrender.com/api/admin/subjects/${subjectId}`,
+        {
+          examSchedule,
+        }
+      );
 
       alert("✅ Exam schedule updated successfully!");
       fetchSubjects(); // Refresh subjects list
@@ -70,14 +75,22 @@ const ExamUpdate = () => {
         {loading ? (
           <CircularProgress />
         ) : subjects.length === 0 ? (
-          <Typography color="error">❌ No subjects found in the database.</Typography>
+          <Typography color="error">
+            ❌ No subjects found in the database.
+          </Typography>
         ) : (
           <Table>
             <TableHead>
               <TableRow>
-                <TableCell><strong>Subject Name</strong></TableCell>
-                <TableCell><strong>Exam Schedule</strong></TableCell>
-                <TableCell><strong>Update</strong></TableCell>
+                <TableCell>
+                  <strong>Subject Name</strong>
+                </TableCell>
+                <TableCell>
+                  <strong>Exam Schedule</strong>
+                </TableCell>
+                <TableCell>
+                  <strong>Update</strong>
+                </TableCell>
               </TableRow>
             </TableHead>
             <TableBody>
@@ -92,7 +105,9 @@ const ExamUpdate = () => {
                         const newSchedule = e.target.value;
                         setSubjects((prev) =>
                           prev.map((s) =>
-                            s._id === subject._id ? { ...s, examSchedule: newSchedule } : s
+                            s._id === subject._id
+                              ? { ...s, examSchedule: newSchedule }
+                              : s
                           )
                         );
                       }}
@@ -102,7 +117,9 @@ const ExamUpdate = () => {
                     <Button
                       variant="contained"
                       color="primary"
-                      onClick={() => handleUpdateSchedule(subject._id, subject.examSchedule)}
+                      onClick={() =>
+                        handleUpdateSchedule(subject._id, subject.examSchedule)
+                      }
                     >
                       Update
                     </Button>

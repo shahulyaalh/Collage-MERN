@@ -36,7 +36,7 @@ const HallTicket = () => {
 
       try {
         const res = await axios.get(
-          `http://localhost:5000/api/hallticket/${studentId}?timestamp=${Date.now()}`
+          `https://collage-mern-1.onrender.com/api/hallticket/${studentId}?timestamp=${Date.now()}`
         );
         console.log("📡 API Response in Frontend:", res.data);
         setStudentInfo(res.data);
@@ -80,7 +80,7 @@ const HallTicket = () => {
 
     try {
       const response = await axios.post(
-        "http://localhost:5000/api/exams/send-hallticket",
+        "https://collage-mern-1.onrender.com/api/exams/send-hallticket",
         {
           studentId,
         }
