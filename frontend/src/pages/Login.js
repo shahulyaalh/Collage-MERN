@@ -151,11 +151,11 @@ const Login = () => {
             {loading ? "Logging in..." : "Login"}
           </Button>
 
-          {/* {userType === "admin" && (
+          {userType === "admin" && (
             <Typography variant="body2" sx={{ mt: 2 }}>
               Don't have an account? <a href="/register">Register</a>
             </Typography>
-          )} */}
+          )}
         </form>
       </Paper>
     </Container>
