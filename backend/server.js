@@ -4,12 +4,7 @@ const mongoose = require("mongoose");
 require("dotenv").config();
 
 const app = express();
-app.use(
-  cors({
-    origin: "https://collage-mern-1.onrender.com", // or "*" for all origins
-    credentials: true,
-  })
-);
+app.use(cors());
 
 app.use(express.json());
 
