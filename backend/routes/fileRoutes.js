@@ -3,6 +3,7 @@ const XLSX = require("xlsx");
 const fs = require("fs-extra");
 const path = require("path");
 const upload = require("../middleware/upload");
+
 const Student = require("../models/Student");
 const Arrear = require("../models/Arrear");
 const Subject = require("../models/Subject");
@@ -10,7 +11,7 @@ const Attendance = require("../models/Attendance");
 
 const router = express.Router();
 
-// 🔧 Helper: Normalize keys
+// 🔧 Normalize keys in row object
 const normalizeKeys = (row) => {
   const normalized = {};
   for (const key in row) {
@@ -19,17 +20,15 @@ const normalizeKeys = (row) => {
   return normalized;
 };
 
-// ✅ Upload & Process CSV/XLSX File
+// ✅ File Upload Route
 router.post("/upload", upload.single("file"), async (req, res) => {
-  if (!req.file) return res.status(400).json({ message: "No file uploaded" });
-
-  const filePath = req.file.path;
-  const fileType = path.extname(req.file.originalname).toLowerCase();
+  const filePath = req.file?.path;
+  const fileType = path.extname(req.file?.originalname || "").toLowerCase();
   const validExtensions = [".xlsx", ".xls", ".csv"];
 
-  if (!validExtensions.includes(fileType)) {
-    fs.removeSync(filePath);
-    return res.status(400).json({ message: "Unsupported file type" });
+  if (!filePath || !validExtensions.includes(fileType)) {
+    if (filePath) fs.removeSync(filePath);
+    return res.status(400).json({ message: "Invalid or missing file" });
   }
 
   try {
@@ -39,35 +38,29 @@ router.post("/upload", upload.single("file"), async (req, res) => {
     const data = rawData.map(normalizeKeys);
 
     const uploadType = req.body.uploadType?.trim().toLowerCase();
-    console.log(`📂 Uploaded: ${req.file.originalname}`);
+    console.log(`📂 File: ${req.file.originalname}`);
     console.log(`📊 Sheet: ${sheetName}`);
-    console.log(`📌 Upload Type: ${uploadType}`);
-    console.log(`📄 First 5 Rows:`, data.slice(0, 5));
+    console.log(`📌 Type: ${uploadType}`);
+    console.log(`📝 Sample:`, data.slice(0, 3));
 
-    let processed = false;
-    let result = {};
+    let result;
 
-    if (uploadType === "student_list") {
-      console.log("📌 Processing Student List...");
-      result = await processStudentData(data);
-      processed = true;
-    } else if (uploadType === "arrear_list") {
-      console.log("📌 Processing Arrear List...");
-      result = await processArrearData(data);
-      processed = true;
-    } else if (uploadType === "attendance") {
-      console.log("📌 Processing Attendance & Fees...");
-      result = await processAttendanceAndFeesData(data);
-      processed = true;
-    } else if (uploadType === "subjectname") {
-      console.log("📌 Processing Subject List...");
-      result = await processSubjectData(data);
-      processed = true;
-    }
-
-    if (!processed) {
-      fs.removeSync(filePath);
-      return res.status(400).json({ message: "Invalid upload type" });
+    switch (uploadType) {
+      case "student_list":
+        result = await processStudentData(data);
+        break;
+      case "arrear_list":
+        result = await processArrearData(data);
+        break;
+      case "attendance":
+        result = await processAttendanceAndFeesData(data);
+        break;
+      case "subjectname":
+        result = await processSubjectData(data);
+        break;
+      default:
+        fs.removeSync(filePath);
+        return res.status(400).json({ message: "Invalid upload type" });
     }
 
     fs.removeSync(filePath);
@@ -77,14 +70,14 @@ router.post("/upload", upload.single("file"), async (req, res) => {
     });
   } catch (error) {
     if (fs.existsSync(filePath)) fs.removeSync(filePath);
-    console.error("❌ Error processing file:", error);
+    console.error("❌ File processing error:", error);
     res
       .status(500)
       .json({ message: "Error processing file", error: error.message });
   }
 });
 
-// ✅ Process Student Data
+// ✅ Student Data Processor
 const processStudentData = async (data) => {
   let inserted = 0,
     skipped = 0;
@@ -93,16 +86,16 @@ const processStudentData = async (data) => {
     const email = row["email"];
     if (!reg || !row["name"]) continue;
 
-    const existingStudent = await Student.findOne({
+    const exists = await Student.findOne({
       $or: [{ regNumber: reg }, { email }],
     });
 
-    if (!existingStudent) {
+    if (!exists) {
       await Student.create({
         regNumber: reg,
         name: row["name"],
         email,
-        department: row["dep"],
+        department: row["dep"] || row["department"],
         semester: row["sem"],
         attendance: 0,
         feesPaid: false,
@@ -117,13 +110,15 @@ const processStudentData = async (data) => {
   return { inserted, skipped };
 };
 
-// ✅ Process Arrear Data
+// ✅ Arrear Data Processor
 const processArrearData = async (data) => {
   let inserted = 0;
   for (const row of data) {
     const reg = row["reg no"];
-    const arrearSubjects =
-      row["arrear sub"]?.split(",").map((s) => s.trim()) || [];
+    const arrearSubjects = (row["arrear sub"] || "")
+      .split(",")
+      .map((s) => s.trim())
+      .filter(Boolean);
 
     await Student.updateOne(
       { regNumber: reg },
@@ -133,7 +128,7 @@ const processArrearData = async (data) => {
     await Arrear.create({
       regNumber: reg,
       name: row["name"],
-      department: row["dep"],
+      department: row["dep"] || row["department"],
       semester: row["sem"],
       arrears: arrearSubjects,
       createdAt: new Date(),
@@ -144,7 +139,7 @@ const processArrearData = async (data) => {
   return { inserted };
 };
 
-// ✅ Process Subject Data
+// ✅ Subject Data Processor
 const processSubjectData = async (data) => {
   let inserted = 0,
     skipped = 0;
@@ -157,7 +152,7 @@ const processSubjectData = async (data) => {
       await Subject.create({
         subjectCode: code,
         subjectName: row["subject name"],
-        department: row["dept"],
+        department: row["dept"] || row["department"],
         semester: row["sem"],
         cost: row["cost"],
         createdAt: new Date(),
@@ -170,7 +165,7 @@ const processSubjectData = async (data) => {
   return { inserted, skipped };
 };
 
-// ✅ Process Attendance & Fees Data
+// ✅ Attendance & Fees Data Processor
 const processAttendanceAndFeesData = async (data) => {
   let inserted = 0,
     updated = 0;
@@ -183,15 +178,12 @@ const processAttendanceAndFeesData = async (data) => {
       { regNumber: reg },
       { $set: { attendance: percentage, feesPaid } }
     );
-
-    if (studentUpdate.matchedCount > 0) {
-      updated++;
-    }
+    if (studentUpdate.matchedCount > 0) updated++;
 
     await Attendance.create({
       regNumber: reg,
       name: row["name"],
-      department: row["dep"],
+      department: row["dep"] || row["department"],
       semester: row["sem"],
       email: row["email"],
       percentage,
@@ -204,34 +196,35 @@ const processAttendanceAndFeesData = async (data) => {
   return { inserted, updated };
 };
 
-// ✅ DELETE all uploaded data and files
+// ✅ Delete All Uploaded Data & Files
 router.delete("/delete-all", async (req, res) => {
   try {
     const uploadDir = path.join(__dirname, "../uploads");
     if (fs.existsSync(uploadDir)) {
       fs.emptyDirSync(uploadDir);
-      console.log("🧹 All uploaded files removed");
+      console.log("🧹 Uploads cleared");
     }
 
-    const studentDelete = await Student.deleteMany({});
-    const arrearDelete = await Arrear.deleteMany({});
-    const subjectDelete = await Subject.deleteMany({});
-    const attendanceDelete = await Attendance.deleteMany({});
+    const [students, arrears, subjects, attendance] = await Promise.all([
+      Student.deleteMany({}),
+      Arrear.deleteMany({}),
+      Subject.deleteMany({}),
+      Attendance.deleteMany({}),
+    ]);
 
-    console.log(`🗑️ Deleted Students: ${studentDelete.deletedCount}`);
-    console.log(`🗑️ Deleted Arrears: ${arrearDelete.deletedCount}`);
-    console.log(`🗑️ Deleted Subjects: ${subjectDelete.deletedCount}`);
-    console.log(`🗑️ Deleted Attendance: ${attendanceDelete.deletedCount}`);
+    console.log(`🗑️ Students: ${students.deletedCount}`);
+    console.log(`🗑️ Arrears: ${arrears.deletedCount}`);
+    console.log(`🗑️ Subjects: ${subjects.deletedCount}`);
+    console.log(`🗑️ Attendance: ${attendance.deletedCount}`);
 
-    res.status(200).json({
-      message: "✅ All uploaded files and data deleted successfully!",
-    });
+    res
+      .status(200)
+      .json({ message: "✅ All uploaded data deleted successfully!" });
   } catch (error) {
-    console.error("❌ Error deleting files/data:", error);
-    res.status(500).json({
-      message: "Error deleting uploaded files and data",
-      error: error.message,
-    });
+    console.error("❌ Delete error:", error);
+    res
+      .status(500)
+      .json({ message: "Failed to delete data", error: error.message });
   }
 });
 
