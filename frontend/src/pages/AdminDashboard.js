@@ -1,7 +1,5 @@
 "use client";
-import React from "react";
-
-import { useState, useEffect } from "react";
+import React, { useState, useEffect } from "react";
 import axios from "axios";
 import {
   Button,
@@ -79,24 +77,26 @@ const AdminDashboard = () => {
 
     const formData = new FormData();
     formData.append("file", selectedFile);
-    formData.append("uploadType", uploadType);
+    formData.append("type", uploadType);
 
     try {
-      const res = await axios.post(
+      const response = await axios.post(
         "https://collage-mern-1.onrender.com/api/files/upload",
-        formData
+        formData,
+        {
+          headers: { "Content-Type": "multipart/form-data" },
+        }
       );
-      setUploadMessage({ text: `✅ ${res.data.message}`, type: "success" });
+      setUploadMessage({
+        text: "✅ File uploaded successfully!",
+        type: "success",
+      });
       setSelectedFile(null);
       setUploadType("");
       fetchUploadedFiles();
-      fetchStudents();
-    } catch (err) {
-      console.error("❌ File upload failed:", err);
-      setUploadMessage({
-        text: "❌ Upload failed! Please try again.",
-        type: "error",
-      });
+    } catch (error) {
+      console.error("❌ Upload error", error);
+      setUploadMessage({ text: "❌ File upload failed.", type: "error" });
     } finally {
       setUploading(false);
     }
@@ -130,10 +130,7 @@ const AdminDashboard = () => {
       alert("✅ Student updated successfully!");
       fetchStudents();
     } catch (err) {
-      console.error(
-        "❌ Error updating student:",
-        err.response?.data || err.message
-      );
+      console.error("❌ Error updating student:", err);
       alert("❌ Failed to update student.");
     }
   };
