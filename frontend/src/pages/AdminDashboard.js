@@ -1,4 +1,3 @@
-"use client";
 import React, { useState, useEffect } from "react";
 import axios from "axios";
 import {
@@ -34,9 +33,7 @@ const AdminDashboard = () => {
   const fetchStudents = async () => {
     try {
       setLoadingStudents(true);
-      const res = await axios.get(
-        "https://collage-mern-1.onrender.com/api/admin/students"
-      );
+      const res = await axios.get("http://localhost:5000/api/admin/students");
       setStudents(res.data);
     } catch (err) {
       console.error("❌ Error fetching students:", err);
@@ -48,9 +45,7 @@ const AdminDashboard = () => {
   const fetchUploadedFiles = async () => {
     try {
       setLoadingFiles(true);
-      const res = await axios.get(
-        "https://collage-mern-1.onrender.com/api/files/uploads"
-      );
+      const res = await axios.get("http://localhost:5000/api/files/uploads");
       setUploadedFiles(res.data);
     } catch (err) {
       console.error("❌ Error fetching files:", err);
@@ -77,26 +72,25 @@ const AdminDashboard = () => {
 
     const formData = new FormData();
     formData.append("file", selectedFile);
-    formData.append("type", uploadType);
+    formData.append("uploadType", uploadType);
 
     try {
-      const response = await axios.post(
-        "https://collage-mern-1.onrender.com/api/files/upload",
-        formData,
-        {
-          headers: { "Content-Type": "multipart/form-data" },
-        }
+      const res = await axios.post(
+        // "https://collage-mern-1.onrender.com/api/files/upload",
+        "http://localhost:5000/api/files/upload",
+        formData
       );
-      setUploadMessage({
-        text: "✅ File uploaded successfully!",
-        type: "success",
-      });
+      setUploadMessage({ text: `✅ ${res.data.message}`, type: "success" });
       setSelectedFile(null);
       setUploadType("");
       fetchUploadedFiles();
-    } catch (error) {
-      console.error("❌ Upload error", error);
-      setUploadMessage({ text: "❌ File upload failed.", type: "error" });
+      fetchStudents();
+    } catch (err) {
+      console.error("❌ File upload failed:", err);
+      setUploadMessage({
+        text: "❌ Upload failed! Please try again.",
+        type: "error",
+      });
     } finally {
       setUploading(false);
     }
@@ -108,7 +102,7 @@ const AdminDashboard = () => {
 
     try {
       await axios.delete(
-        `https://collage-mern-1.onrender.com/api/admin/students/${studentId}`
+        `http://localhost:5000/api/admin/students/${studentId}`
       );
       alert("✅ Student removed successfully!");
       setStudents((prev) => prev.filter((s) => s._id !== studentId));
@@ -121,16 +115,17 @@ const AdminDashboard = () => {
   const handleUpdateStudent = async (studentId, updatedData) => {
     try {
       await axios.patch(
-        `https://collage-mern-1.onrender.com/api/admin/students/${studentId}`,
+        `http://localhost:5000/api/admin/students/${studentId}`,
         updatedData,
-        {
-          headers: { "Content-Type": "application/json" },
-        }
+        { headers: { "Content-Type": "application/json" } }
       );
       alert("✅ Student updated successfully!");
       fetchStudents();
     } catch (err) {
-      console.error("❌ Error updating student:", err);
+      console.error(
+        "❌ Error updating student:",
+        err.response?.data || err.message
+      );
       alert("❌ Failed to update student.");
     }
   };
@@ -139,9 +134,7 @@ const AdminDashboard = () => {
     if (!window.confirm("Are you sure you want to delete this file?")) return;
 
     try {
-      await axios.delete(
-        `https://collage-mern-1.onrender.com/api/files/uploads/${fileId}`
-      );
+      await axios.delete(`http://localhost:5000/api/files/uploads/${fileId}`);
       alert("✅ File deleted successfully!");
       fetchUploadedFiles();
     } catch (err) {

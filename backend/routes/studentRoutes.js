@@ -144,7 +144,7 @@ router.get("/:studentId", async (req, res) => {
       semester: student.semester,
       department: student.department,
     })
-      .select("subjectName subjectCode examSchedule cost")
+      .select("name code examSchedule fees")
       .lean();
 
     console.log("✅ Regular Subjects Fetched:", regularSubjects);
@@ -155,13 +155,14 @@ router.get("/:studentId", async (req, res) => {
     let arrearSubjects = [];
 
     if (arrearData && arrearData.arrears.length > 0) {
+      console.log("this is arrear data", arrearData);
       console.log("✅ Fetching Arrear Subjects for:", arrearData.arrears);
 
       // ✅ Ensure arrear subjects exist in `subjects` collection
       arrearSubjects = await Subject.find({
-        subjectCode: { $in: arrearData.arrears },
+        code: { $in: arrearData.arrears },
       })
-        .select("subjectName subjectCode examSchedule cost")
+        .select("name code examSchedule fees")
         .lean();
 
       if (arrearSubjects.length === 0) {
@@ -178,22 +179,28 @@ router.get("/:studentId", async (req, res) => {
     // ✅ Format Data for Response
     const formattedSubjects = [
       ...regularSubjects.map((sub) => ({
-        subjectName: sub.subjectName, // 👈 use clear key
-        subjectCode: sub.subjectCode, // 👈 added subject code
+        subjectName: sub.name, // 👈 use clear key
+        subjectCode: sub.code, // 👈 added subject code
         type: "regular",
         examSchedule: sub.examSchedule || "📅 Not Scheduled",
-        fees: sub.cost,
+        fees: sub.fees,
       })),
       ...arrearSubjects.map((sub) => ({
-        subjectName: sub.subjectName,
-        subjectCode: sub.subjectCode,
+        subjectName: sub.name,
+        subjectCode: sub.code,
         type: "arrear",
         examSchedule: sub.examSchedule || "📅 Not Scheduled",
-        fees: sub.cost,
+        fees: sub.fees,
       })),
     ];
 
-    console.log("formatted subjects", formattedSubjects[0]);
+    formattedSubjects.forEach((element, ind) => {
+      console.log("this is element");
+      console.log(ind);
+      console.log(element);
+    });
+
+    // console.log("formatted subjects", formattedSubjects);
 
     res.status(200).json({
       studentName: student.name,

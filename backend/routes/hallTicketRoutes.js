@@ -30,7 +30,7 @@ router.get("/:studentId", async (req, res) => {
       semester: student.semester,
       department: student.department,
     })
-      .select("subjectName subjectCode examSchedule")
+      .select("name code examSchedule")
       .lean();
 
     console.log("✅ Regular Subjects Fetched:", regularSubjects);
@@ -45,9 +45,9 @@ router.get("/:studentId", async (req, res) => {
 
       // ✅ Ensure arrear subjects exist in `subjects` collection
       arrearSubjects = await Subject.find({
-        subjectCode: { $in: arrearData.arrears },
+        code: { $in: arrearData.arrears },
       })
-        .select("subjectName subjectCode examSchedule")
+        .select("name code examSchedule")
         .lean();
 
       if (arrearSubjects.length === 0) {
@@ -64,20 +64,24 @@ router.get("/:studentId", async (req, res) => {
     // ✅ Format Data for Response
     const formattedSubjects = [
       ...regularSubjects.map((sub) => ({
-        subjectName: sub.subjectName, // 👈 use clear key
-        subjectCode: sub.subjectCode, // 👈 added subject code
+        subjectName: sub.name, // 👈 use clear key
+        subjectCode: sub.code, // 👈 added subject code
         type: "regular",
         examSchedule: sub.examSchedule || "📅 Not Scheduled",
       })),
       ...arrearSubjects.map((sub) => ({
-        subjectName: sub.subjectName,
-        subjectCode: sub.subjectCode,
+        subjectName: sub.name,
+        subjectCode: sub.code,
         type: "arrear",
         examSchedule: sub.examSchedule || "📅 Not Scheduled",
       })),
     ];
 
-    console.log("formatted subjects", formattedSubjects[0]);
+    formattedSubjects.forEach((element, ind) => {
+      console.log(ind);
+      console.log(element);
+    });
+    console.log("formatted subjects", formattedSubjects);
 
     res.status(200).json({
       studentName: student.name,

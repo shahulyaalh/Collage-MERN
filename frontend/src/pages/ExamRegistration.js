@@ -36,12 +36,8 @@ const ExamRegistration = () => {
         }
 
         const [subjectRes, studentRes] = await Promise.all([
-          axios.get(
-            `https://collage-mern-1.onrender.com/api/exams/subjects/${studentId}`
-          ),
-          axios.get(
-            `https://collage-mern-1.onrender.com/api/student/${studentId}`
-          ),
+          axios.get(`http://localhost:5000/api/exams/subjects/${studentId}`),
+          axios.get(`http://localhost:5000/api/student/${studentId}`),
         ]);
 
         setRegularSubjects(subjectRes.data.regularSubjects || []);
@@ -85,7 +81,7 @@ const ExamRegistration = () => {
 
     try {
       const res = await axios.post(
-        "https://collage-mern-1.onrender.com/api/exams/register-exam",
+        "http://localhost:5000/api/exams/register-exam",
         data
       );
 
@@ -148,9 +144,9 @@ const ExamRegistration = () => {
               {subjects.map((subject, index) => (
                 <TableRow key={subject._id}>
                   <TableCell align="center">{index + 1}</TableCell>
-                  <TableCell>{subject.subjectCode}</TableCell>
-                  <TableCell>{subject.subjectName}</TableCell>
-                  <TableCell align="right">{subject.cost}</TableCell>
+                  <TableCell>{subject.code}</TableCell>
+                  <TableCell>{subject.name}</TableCell>
+                  <TableCell align="right">{subject.fees}</TableCell>
                 </TableRow>
               ))}
             </TableBody>

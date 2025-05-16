@@ -55,7 +55,7 @@ exports.sendHallTicket = async (req, res) => {
     const regularSubjects = await Subject.find({
       _id: { $in: exam.subjects },
     })
-      .select("subjectName subjectCode examSchedule")
+      .select("name code examSchedule")
       .lean();
 
     const arrearSubjects = [];
@@ -63,9 +63,9 @@ exports.sendHallTicket = async (req, res) => {
 
     if (arrearData?.arrears?.length) {
       const matchedArrears = await Subject.find({
-        subjectCode: { $in: arrearData.arrears },
+        code: { $in: arrearData.arrears },
       })
-        .select("subjectName subjectCode examSchedule")
+        .select("name code examSchedule")
         .lean();
       arrearSubjects.push(...matchedArrears);
     }
@@ -78,14 +78,14 @@ exports.sendHallTicket = async (req, res) => {
 
     const allSubjects = [
       ...regularSubjects.map((sub) => ({
-        name: sub.subjectName,
-        code: sub.subjectCode,
+        name: sub.name,
+        code: sub.code,
         examSchedule: sub.examSchedule || "Not Scheduled",
         type: "Regular",
       })),
       ...arrearSubjects.map((sub) => ({
-        name: sub.subjectName,
-        code: sub.subjectCode,
+        name: sub.name,
+        code: sub.code,
         examSchedule: sub.examSchedule || "Not Scheduled",
         type: "Arrear",
       })),
@@ -215,7 +215,7 @@ exports.getSubjects = async (req, res) => {
 
     // Fetch arrear subjects based on subject codes
     const arrearSubjects = await Subject.find({
-      subjectCode: { $in: arrears },
+      code: { $in: arrears },
     });
 
     console.log(arrearSubjects);

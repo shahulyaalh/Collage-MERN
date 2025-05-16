@@ -42,7 +42,7 @@ const StudentDashboard = () => {
       //   axios.get(),
       // ]);
       const data = await axios.get(
-        `https://collage-mern-1.onrender.com/api/student/${studentId}`
+        `http://localhost:5000/api/student/${studentId}`
       );
       console.log("this is get data");
       console.log(data.data);
@@ -68,7 +68,7 @@ const StudentDashboard = () => {
 
       try {
         const res = await axios.get(
-          `https://collage-mern-1.onrender.com/api/student/${studentId}`
+          `http://localhost:5000/api/student/${studentId}`
         );
         setStudentData(res.data);
       } catch (err) {
@@ -100,15 +100,12 @@ const StudentDashboard = () => {
     console.log(data);
 
     try {
-      await axios.post(
-        "https://collage-mern-1.onrender.com/api/exams/register",
-        {
-          studentId,
-          subjects: studentData.subjects
-            .filter((subject) => subject.type !== "arrear")
-            .map((subj) => subj.name),
-        }
-      );
+      await axios.post("http://localhost:5000/api/exams/register", {
+        studentId,
+        subjects: studentData.subjects
+          .filter((subject) => subject.type !== "arrear")
+          .map((subj) => subj.name),
+      });
       console.log(studentData);
 
       setMessage({ text: "✅ Exam registered successfully!", type: "success" });

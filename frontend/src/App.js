@@ -10,7 +10,32 @@ import ExamRegistration from "./pages/ExamRegistration"; // ✅ Added Exam Regis
 import AddSubjects from "./pages/AddSubjects";
 import ExamUpdate from "./pages/ExamUpdate"; // ✅ Import ExamUpdate.js
 
-const Home = () => <h1>Welcome to Hall Ticket System</h1>; // ✅ Temporary Home Page
+const Home = () => (
+  <div
+    style={{
+      backgroundImage: "url('/bg-clg.jpeg')",
+      backgroundSize: "cover",
+      backgroundPosition: "center",
+      minHeight: "100vh",
+      color: "white",
+      display: "flex",
+      flexDirection: "column",
+      justifyContent: "center",
+      alignItems: "center",
+    }}
+  >
+    <h1
+      style={{
+        color: "black",
+        textAlign: "initial",
+        position: "absolute",
+        marginBottom: "30px",
+      }}
+    >
+      Welcome to Hall Ticket System
+    </h1>
+  </div>
+);
 
 function App() {
   return (

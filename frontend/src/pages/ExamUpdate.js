@@ -28,9 +28,7 @@ const ExamUpdate = () => {
   const fetchSubjects = async () => {
     try {
       setLoading(true);
-      const res = await axios.get(
-        "https://collage-mern-1.onrender.com/api/admin/subjects"
-      );
+      const res = await axios.get("http://localhost:5000/api/admin/subjects");
       setSubjects(res.data);
     } catch (err) {
       console.error("❌ Error fetching subjects:", err);
@@ -49,7 +47,7 @@ const ExamUpdate = () => {
 
     try {
       await axios.patch(
-        `https://collage-mern-1.onrender.com/api/admin/subjects/${subjectId}`,
+        `http://localhost:5000/api/admin/subjects/${subjectId}`,
         {
           examSchedule,
         }
@@ -96,7 +94,7 @@ const ExamUpdate = () => {
             <TableBody>
               {subjects.map((subject) => (
                 <TableRow key={subject._id}>
-                  <TableCell>{subject.subjectName}</TableCell>
+                  <TableCell>{subject.name}</TableCell>
                   <TableCell>
                     <TextField
                       type="datetime-local"
